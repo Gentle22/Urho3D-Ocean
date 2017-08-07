@@ -37,7 +37,7 @@ class Demo : public Sample
 
 public:
     /// Construct.
-	Demo(Context* context);
+    Demo(Context* context);
 
     /// Setup after engine initialization and before running the main loop.
     virtual void Start();
@@ -60,16 +60,18 @@ protected:
 private:
     /// Construct the scene content.
     void CreateScene();
-	/// Create Zone
-	void CreateZone();
-	/// Create Lights
-	void CreateLight();
-	/// Create Ocean component
-	void CreateOcean();
-	/// Create Camera
-	void CreateCamera();
+    /// Create Zone
+    void CreateZone();
+    /// Create Lights
+    void CreateLight();
+    /// Create Ocean component
+    void CreateOcean();
+    /// Create instructions
+    void CreateInstructions();
+    /// Create Camera
+    void CreateCamera();
 
-	/// Set up a viewport for displaying the scene.
+    /// Set up a viewport for displaying the scene.
     void SetupViewport();
     /// Subscribe to application-wide logic update events.
     void SubscribeToEvents();
@@ -78,7 +80,7 @@ private:
     /// Handle the logic update event.
     void HandleUpdate(StringHash eventType, VariantMap& eventData);
 
-	Camera* camera_;
-	SharedPtr<WaveEditor> waveEditor_;
-	bool editMode_ = false;
+    Camera* camera_;
+    SharedPtr<WaveEditor> waveEditor_;
+    bool editMode_ = false;
 };

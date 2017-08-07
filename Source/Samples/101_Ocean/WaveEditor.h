@@ -36,46 +36,50 @@ class Window;
 class LineEdit;
 class CheckBox;
 
-
+/// Editor to change the properties of the WaveSystem.
 class WaveEditor : public Object
 {
-	URHO3D_OBJECT(WaveEditor, Object);
+    URHO3D_OBJECT(WaveEditor, Object);
 
 public:
 
-	WaveEditor(Context* context, WeakPtr<WaveSystem> waveManager);
+    WaveEditor(Context* context, WeakPtr<WaveSystem> waveManager);
     ~WaveEditor();
+
+    void SetVisible(bool visible);
 
 private:
 
-	void CreateWindow();
-	void CreateControls();
+    void CreateWindow();
+    void CreateControls();
 
-	void HandleSetPressed(StringHash eventType, VariantMap& eventData);
-	void HandleResetPressed(StringHash eventType, VariantMap& eventData);
+    void HandleSetPressed(StringHash eventType, VariantMap& eventData);
+    void HandleResetPressed(StringHash eventType, VariantMap& eventData);
 
-	/// Updates the Editor fields with data from Wave Manager
-	void UpdateEditor();
-	/// Updates the Wave Manager with the new values
-	void UpdateWaveManager();
+    /// Updates the Editor fields with data from WaveSystem
+    void UpdateEditor();
+    /// Updates the WaveSystem with the new values
+    void UpdateWaveSystem();
 
-	/// The UI's root UIElement.
-	SharedPtr<UIElement> uiRoot_;
-	/// The Window.
-	SharedPtr<Window> window_;
-	/// Controls
-	LineEdit* editSteepness_ = nullptr;
-	LineEdit* editLength_ = nullptr;
-	LineEdit* editAmplitude_ = nullptr;
-	LineEdit* editSpeed_ = nullptr;
-	LineEdit* editDirectionX_ = nullptr;
-	LineEdit* editDirectionY_ = nullptr;
-	LineEdit* editDirectionAngle_ = nullptr;
-	CheckBox* cbFading_	= nullptr;
-	CheckBox* cbSpeed_	= nullptr;
+    /// The UI's root UIElement.
+    SharedPtr<UIElement> uiRoot_;
+    /// The Window.
+    SharedPtr<Window> window_;
+    /// Controls
+    LineEdit* editWaveCount_ = nullptr;
+    LineEdit* editLifetime_ = nullptr;
+    LineEdit* editSteepness_ = nullptr;
+    LineEdit* editLength_ = nullptr;
+    LineEdit* editAmplitude_ = nullptr;
+    LineEdit* editSpeed_ = nullptr;
+    LineEdit* editDirectionX_ = nullptr;
+    LineEdit* editDirectionY_ = nullptr;
+    LineEdit* editDirectionAngle_ = nullptr;
+    CheckBox* cbFading_    = nullptr;
+    CheckBox* cbSpeed_    = nullptr;
 
-	/// The wave manager
-	WeakPtr<WaveSystem> waveManagerWeak_;
+    /// The WaveSystem to edit
+    WeakPtr<WaveSystem> waveManagerWeak_;
 };
 
 }

@@ -22,48 +22,33 @@
 
 #pragma once
 
-#include <Urho3D/Graphics/StaticModel.h>
+#include <Urho3D/Container/Vector.h>
+#include <Urho3D/Math/Vector3.h>
 
 #include "WaveSystem.h"
 
+#include <tuple>
+
+
 namespace Urho3D
 {
+// Forward declarations
+class VertexBuffer;
 
-class Model;
+using PositionAndNormal = std::pair<Vector3, Vector3>;
 
-/// Ocean component.
-class URHO3D_API Ocean : public StaticModel
-{
-    URHO3D_OBJECT(Ocean, StaticModel);
+/// Extract the Vertex positions from a VertexBuffer
+PODVector<Vector3> ExtractVertexPositions(VertexBuffer* vertexBuffer);
+/// Extract duplicated vertices from a list of vertices
+PODVector<unsigned> ExtractDuplicates(const PODVector<Vector3>& vertexPositions);
 
-public:
-    Ocean(Context* context);
-    ~Ocean();
-
-    /// Register object factory. Drawable must be registered first.
-    static void RegisterObject(Context* context);
-
-    /// Set the model to use as the water plane
-    void SetModel(Model* model);
-
-    SharedPtr<WaveSystem> GetWaveManager() { return waveSystem_; }
-
-private:
-    /// Handle the logic update event.
-    void HandleUpdate(StringHash eventType, VariantMap& eventData);
-    /// Handle model reload finished.
-    void HandleModelReloadFinished(StringHash eventType, VariantMap& eventData);
-
-    /// Water plane's vertex buffer that we will animate.
-    SharedPtr<VertexBuffer> waterVertexBuffer_;
-    /// Stores the original vertices of the water plane model
-    PODVector<Vector3> originalVertices_;
-    /// Stores vertex duplicates
-    PODVector<unsigned> vertexDuplicates_;
-
-    SharedPtr<WaveSystem> waveSystem_;
-
-    float time_ = 0.0f;
-};
+/// Calculate the new vertex position by applying the Gerstner Wave function
+Vector3 CalculateGerstnerWavePosition(const Vector2 P, const float t, const float q, const float a,
+    const Vector2& dir, const float w, const float phi);
+/// Calculate the new vertex normal by applying the Gerstner Wave function
+Vector3 CalculateGerstnerWaveNormal(const Vector2 P, const float t, const float q, const float a,
+    const Vector2& dir, const float w, const float phi);
+/// Calculate the sum of all Gerstner waves and return the new vertex position and normal
+PositionAndNormal CalculateGerstnerWaves(const Vector2 P, const float t, const PODVector<WaveSystem::Wave*>& waves);
 
 }

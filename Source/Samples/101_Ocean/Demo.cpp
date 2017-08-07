@@ -54,8 +54,8 @@ Demo::Demo(Context* context) :
 
 void Demo::Start()
 {
-	// Register the Ocean Component
-	Ocean::RegisterObject(context_);
+    // Register the Ocean Component
+    Ocean::RegisterObject(context_);
 
     // Execute base class startup
     Sample::Start();
@@ -81,60 +81,77 @@ void Demo::CreateScene()
     // (-1000, -1000, -1000) to (1000, 1000, 1000)
     scene_->CreateComponent<Octree>();
 
-	CreateZone();
-	CreateLight();
-	CreateOcean();
-	CreateCamera();
+    CreateZone();
+    CreateLight();
+    CreateOcean();
+    CreateCamera();
+    CreateInstructions();
 }
 
 void Demo::CreateZone()
 {
-	Node* zoneNode = scene_->CreateChild("Zone");
-	Zone* zone = zoneNode->CreateComponent<Zone>();
-	zone->SetBoundingBox(BoundingBox(-1000.0f, 1000.0f));
-	zone->SetAmbientColor(Color(0.15f, 0.15f, 0.15f));
-	zone->SetFogColor(Color(0.2f, 0.2f, 0.2f));
-	zone->SetFogStart(500.0f);
-	zone->SetFogEnd(750.0f);
+    Node* zoneNode = scene_->CreateChild("Zone");
+    Zone* zone = zoneNode->CreateComponent<Zone>();
+    zone->SetBoundingBox(BoundingBox(-1000.0f, 1000.0f));
+    zone->SetAmbientColor(Color(0.15f, 0.15f, 0.15f));
+    zone->SetFogColor(Color(0.2f, 0.2f, 0.2f));
+    zone->SetFogStart(500.0f);
+    zone->SetFogEnd(750.0f);
 }
 
 void Demo::CreateLight()
 {
-	Node* lightNode = scene_->CreateChild("DirectionalLight");
-	lightNode->SetDirection(Vector3(0.6f, -1.0f, 0.8f));
-	Light* light = lightNode->CreateComponent<Light>();
-	light->SetLightType(LIGHT_DIRECTIONAL);
-	light->SetCastShadows(true);
-	light->SetSpecularIntensity(0.5f);
-	light->SetColor(Color(0.1f, 0.1f, 0.3f));
+    Node* lightNode = scene_->CreateChild("DirectionalLight");
+    lightNode->SetDirection(Vector3(0.6f, -1.0f, 0.8f));
+    Light* light = lightNode->CreateComponent<Light>();
+    light->SetLightType(LIGHT_DIRECTIONAL);
+    light->SetSpecularIntensity(0.7f);
+    light->SetColor(Color(0.2f, 0.2f, 0.8f));
 }
 
 void Demo::CreateCamera()
 {
-	cameraNode_ = new Node(context_);
-	cameraNode_->SetPosition(Vector3(0.0f, 2.0f, -20.0f));
-	camera_ = cameraNode_->CreateComponent<Camera>();
-	camera_->SetFarClip(300.0f);
-	camera_->SetFillMode(FILL_WIREFRAME);
+    cameraNode_ = new Node(context_);
+    cameraNode_->SetPosition(Vector3(0.0f, 2.0f, -20.0f));
+    camera_ = cameraNode_->CreateComponent<Camera>();
+    camera_->SetFarClip(300.0f);
+    camera_->SetFillMode(FILL_WIREFRAME);
 }
 
 void Demo::CreateOcean()
 {
-	ResourceCache* cache = GetSubsystem<ResourceCache>();
-	Model* waterPlaneModel = cache->GetResource<Model>("Models/WaterPlane.mdl");
-	if (!waterPlaneModel)
-	{
-		URHO3D_LOGERROR("Could not load water plane model <Models/WaterPlane.mdl>!");
-		return;
-	}
+    ResourceCache* cache = GetSubsystem<ResourceCache>();
+    Model* waterPlaneModel = cache->GetResource<Model>("Models/WaterPlane.mdl");
+    if (!waterPlaneModel)
+    {
+        URHO3D_LOGERROR("Could not load water plane model <Models/WaterPlane.mdl>!");
+        return;
+    }
 
-	Node* oceanNode = scene_->CreateChild("Ocean");
-	oceanNode->SetPosition(Vector3(0.0f, 0.0f, 0.0f));
-	Ocean* ocean = oceanNode->CreateComponent<Ocean>();
-	ocean->SetModel(waterPlaneModel);
+    Node* oceanNode = scene_->CreateChild("Ocean");
+    oceanNode->SetPosition(Vector3(0.0f, 0.0f, 0.0f));
+    Ocean* ocean = oceanNode->CreateComponent<Ocean>();
+    ocean->SetModel(waterPlaneModel);
 
-	// Create the WaveEditor
-	waveEditor_ = new WaveEditor(context_, ocean->GetWaveManager());
+    // Create the WaveEditor
+    waveEditor_ = new WaveEditor(context_, ocean->GetWaveManager());
+    waveEditor_->SetVisible(false);
+}
+
+void Demo::CreateInstructions()
+{
+    ResourceCache* cache = GetSubsystem<ResourceCache>();
+    UI* ui = GetSubsystem<UI>();
+
+    // Construct new Text object, set string to display and font to use
+    Text* instructionText = ui->GetRoot()->CreateChild<Text>();
+    instructionText->SetText("Use WASD keys and mouse/touch to move\nE to toggle Wave Editor\nSpace to toggle Solid/Wireframe");
+    instructionText->SetFont(cache->GetResource<Font>("Fonts/Anonymous Pro.ttf"), 12);
+    instructionText->SetTextAlignment(HA_LEFT);
+
+    // Position the text relative to the screen center
+    instructionText->SetHorizontalAlignment(HA_LEFT);
+    instructionText->SetVerticalAlignment(VA_BOTTOM);
 }
 
 void Demo::SetupViewport()
@@ -194,25 +211,31 @@ void Demo::HandleUpdate(StringHash eventType, VariantMap& eventData)
 
     // Toggle animation with space
     Input* input = GetSubsystem<Input>();
-	if (input->GetKeyPress(KEY_SPACE))
-	{
-		if (camera_->GetFillMode() == FILL_SOLID)
-			camera_->SetFillMode(FILL_WIREFRAME);
-		else
-			camera_->SetFillMode(FILL_SOLID);
-	}
+    if (input->GetKeyPress(KEY_SPACE))
+    {
+        if (camera_->GetFillMode() == FILL_SOLID)
+            camera_->SetFillMode(FILL_WIREFRAME);
+        else
+            camera_->SetFillMode(FILL_SOLID);
+    }
 
-	if (input->GetKeyPress(KEY_E))
-	{
-		editMode_ = !editMode_;
+    if (input->GetKeyPress(KEY_E))
+    {
+        editMode_ = !editMode_;
 
-		if (editMode_)
-			Sample::InitMouseMode(MM_FREE);
-		else
-			Sample::InitMouseMode(MM_RELATIVE);
-	}
+        if (editMode_)
+        {
+            waveEditor_->SetVisible(true);
+            Sample::InitMouseMode(MM_FREE);
+        }
+        else
+        {
+            waveEditor_->SetVisible(false);
+            Sample::InitMouseMode(MM_RELATIVE);
+        }
+    }
 
     // Move the camera, scale movement with time step
-	if (!editMode_)
-		MoveCamera(timeStep);
+    if (!editMode_)
+        MoveCamera(timeStep);
 }
